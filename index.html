@@ -85,7 +85,7 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
 <div class="container">
   <div class="header-card">
     <div class="leaf-deco">🍃</div>
-    <h1>岛岛小药箱 💊</h1>
+    <h1>惠子老师小药箱 💊</h1>
     <div class="subtitle">每日吃药打卡 · 2026.5.25 开始</div>
   </div>
   <div class="stat-bar">
@@ -168,7 +168,10 @@ function buildAll(){
     }
     const key = dk(d);
     const special = SPECIAL[key];
-    weekBlock.appendChild(buildDayCard(d, key, special));
+    const card = buildDayCard(d, key, special);
+    weekBlock.appendChild(card);
+    // fill pills AFTER card is in DOM so getElementById works
+    renderPills(key);
   }
   updateStats();
 }
@@ -215,7 +218,8 @@ function buildDayCard(d, key, special){
   prog.appendChild(fill);
   card.appendChild(prog);
 
-  applyStateToCard(key);
+  // NOTE: do NOT call applyStateToCard here — card not in DOM yet
+  // caller must call renderPills(key) after appending card to DOM
   return card;
 }
 
