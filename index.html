@@ -145,9 +145,14 @@ const MEDS = [
 const SPECIAL = {'2026-6-1': {label:'⚡ B超日', cls:'bsupo'}};
 const STORAGE_KEY = 'islandMedState_v2';
 
-const PAUSE_KEY = 'islandMedPaused_v1';
+const PAUSE_KEY = 'islandMedPaused_v2';
 let paused = {};
-try { paused = JSON.parse(localStorage.getItem(PAUSE_KEY) || '{}'); } catch(e){}
+try {
+  const raw = JSON.parse(localStorage.getItem(PAUSE_KEY) || '{}');
+  // 只保留合法的 med id
+  const validIds = ['asp','hyd','fol','vd','tcm','fen'];
+  Object.keys(raw).forEach(k=>{ if(validIds.includes(k)) paused[k]=raw[k]; });
+} catch(e){}
 function savePaused(){ try{localStorage.setItem(PAUSE_KEY,JSON.stringify(paused))}catch(e){} }
 function isMedPaused(medId){ return !!paused[medId]; }
 function togglePause(medId){
