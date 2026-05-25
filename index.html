@@ -95,6 +95,9 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
     <div class="stat-divider"></div>
     <div class="stat-item"><div class="stat-num" id="streakDays">0</div><div class="stat-label">连续全勤天</div></div>
   </div>
+  <div style="text-align:right;margin:-14px 0 12px;padding-right:4px">
+    <span id="syncStatus" style="font-size:11px;font-weight:600;color:#9f927d">☁️ 加载中…</span>
+  </div>
   <div class="notice-card">
     <div class="notice-title">🌿 用药注意事项</div>
     <ul>
@@ -121,9 +124,63 @@ const MEDS = [
 ];
 const SPECIAL = {'2026-6-1': {label:'⚡ B超日', cls:'bsupo'}};
 const STORAGE_KEY = 'islandMedState_v2';
+const GIST_ID    = 'd4d8b772693a0cc6864a590a50276842';
+const GIST_FILE  = 'med-checklist-data.json';
+// token stored in URL hash or localStorage (never in source code)
+let GIST_TOKEN = localStorage.getItem('med_gist_token') || location.hash.replace('#','');
+if(GIST_TOKEN){ localStorage.setItem('med_gist_token', GIST_TOKEN); location.hash=''; }
+
 let state = {};
+let syncTimer = null;
 try { state = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}'); } catch(e){}
-function saveState(){ try{localStorage.setItem(STORAGE_KEY, JSON.stringify(state))}catch(e){} }
+
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  clearTimeout(syncTimer);
+  syncTimer = setTimeout(pushToGist, 800);
+}
+
+async function pushToGist(){
+  if(!GIST_TOKEN){ setSyncStatus('notoken'); return; }
+  setSyncStatus('syncing');
+  try{
+    const res = await fetch('https://api.github.com/gists/'+GIST_ID, {
+      method:'PATCH',
+      headers:{'Authorization':'token '+GIST_TOKEN,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body: JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(state)}}})
+    });
+    setSyncStatus(res.ok ? 'ok' : 'err');
+  }catch(e){ setSyncStatus('err'); }
+}
+
+async function pullFromGist(){
+  if(!GIST_TOKEN){ setSyncStatus('notoken'); return; }
+  setSyncStatus('syncing');
+  try{
+    const res = await fetch('https://api.github.com/gists/'+GIST_ID, {
+      headers:{'Authorization':'token '+GIST_TOKEN,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!res.ok){ setSyncStatus('err'); return; }
+    const data = await res.json();
+    const raw = data.files?.[GIST_FILE]?.content || '{}';
+    const cloud = JSON.parse(raw);
+    state = Object.assign({}, state, cloud);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    setSyncStatus('ok');
+    document.querySelectorAll('.day-card').forEach(card=>{
+      applyStateToCard(card.id.replace('card-',''));
+    });
+    updateStats();
+  }catch(e){ setSyncStatus('err'); }
+}
+
+function setSyncStatus(s){
+  const el = document.getElementById('syncStatus');
+  if(!el) return;
+  const map = {syncing:['☁️ 同步中…','#9f927d'], ok:['☁️ 已同步','#6fba2c'], err:['☁️ 同步失败','#e05a5a'], notoken:['☁️ 未配置','#c4b89e']};
+  const [txt,color] = map[s]||map.notoken;
+  el.textContent=txt; el.style.color=color;
+}
 function dk(d){ return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate(); }
 function addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; }
 
@@ -332,6 +389,8 @@ setTimeout(()=>{
   const el = document.getElementById('card-'+dk(new Date()));
   if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
 },300);
+// pull latest data from cloud on load
+pullFromGist();
 </script>
 </body>
 </html>
