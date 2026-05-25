@@ -327,31 +327,36 @@ function buildDayCard(d, key, special){
   return card;
 }
 
+
 function makePillBtn(key, id, icon, name, checked){
   const btn = document.createElement('button');
   btn.className = 'pill-btn' + (checked ? ' checked' : '');
   btn.id = 'pill-'+key+'-'+id;
   btn.setAttribute('data-key', key);
   btn.setAttribute('data-med', id);
-  // innerHTML — no text-based check indicator
-  const pauseBtn = document.createElement('button');
-  pauseBtn.className = 'pill-pause';
-  pauseBtn.title = '今日不服用';
-  pauseBtn.innerHTML = '✕';
-  pauseBtn.setAttribute('data-med-pause', id);
+
+  const skipBtn = document.createElement('button');
+  skipBtn.className = 'pill-skip';
+  skipBtn.title = isMedSkipped(id) ? '点击恢复' : '今日跳过';
+  skipBtn.innerHTML = isMedSkipped(id) ? '&#x21A9;' : '&#x2715;';
+  skipBtn.setAttribute('data-skip-id', id);
   skipBtn.addEventListener('click', function(e){
     e.stopPropagation();
     toggleSkip(this.getAttribute('data-skip-id'));
   });
+
   btn.innerHTML = '<span class="pill-icon">'+icon+'</span>'
     +'<span class="pill-name">'+name+'</span>'
     +dotSVG(checked);
-  btn.appendChild(pauseBtn);
+  btn.appendChild(skipBtn);
+
   btn.addEventListener('click', function(){
+    if(isMedSkipped(this.getAttribute('data-med'))) return;
     toggle(this.getAttribute('data-key'), this.getAttribute('data-med'));
   });
   return btn;
 }
+
 
 function makeFenHalf(key, fid, name, checked, borderSide){
   const half = document.createElement('button');
