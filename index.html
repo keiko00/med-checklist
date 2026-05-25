@@ -74,6 +74,26 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
 .back-to-top.visible{opacity:1;pointer-events:all}
 .back-to-top:hover{transform:translateY(-2px);box-shadow:0 6px 0 0 #bdaea0}
 .back-to-top:active{transform:translateY(2px);box-shadow:0 1px 0 0 #bdaea0}
+
+/* paused med tag */
+.paused-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1.5px dashed #e8e0d0}
+.paused-bar:empty{display:none}
+.paused-pill{display:inline-flex;align-items:center;gap:5px;padding:0 10px 0 8px;height:28px;border-radius:50px;
+  background:#f0ece2;color:#c4b89e;font-family:inherit;font-size:11px;font-weight:600;
+  border:1.5px dashed #d4c9b4;cursor:pointer;user-select:none;transition:all .15s;
+  -webkit-tap-highlight-color:transparent}
+.paused-pill:hover{background:#ffe8ed;color:#e05a5a;border-color:#f8a6b2}
+.paused-pill .pp-icon{font-size:12px;pointer-events:none}
+.paused-pill .pp-name{pointer-events:none}
+/* pause btn on pill */
+.pill-pause{display:inline-flex;align-items:center;justify-content:center;
+  width:16px;height:16px;border-radius:50%;border:none;background:rgba(0,0,0,0.06);
+  color:#9f927d;font-size:10px;cursor:pointer;padding:0;margin-left:2px;
+  pointer-events:all;flex-shrink:0;transition:background .15s,color .15s}
+.pill-pause:hover{background:#f8a6b2;color:#fff}
+.pill-btn.checked .pill-pause{background:rgba(255,255,255,0.2);color:#fff}
+.pill-btn.checked .pill-pause:hover{background:rgba(255,255,255,0.4)}
+
 @media(max-width:480px){body{padding:16px 10px 80px}.header-card{padding:20px 18px 18px}.header-card h1{font-size:20px}.day-card{padding:12px 12px}.pills-pending,.pills-done{gap:6px}.pill-btn{padding:0 10px;font-size:11px}.stat-bar{gap:12px;padding:12px 14px}.stat-num{font-size:22px}}
 @media print{body{background:white;padding:10px}.bg-blob,.back-to-top,.footer-sea{display:none}.day-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.pill-btn{box-shadow:none}}
 </style>
@@ -124,6 +144,22 @@ const MEDS = [
 ];
 const SPECIAL = {'2026-6-1': {label:'⚡ B超日', cls:'bsupo'}};
 const STORAGE_KEY = 'islandMedState_v2';
+
+const PAUSE_KEY = 'islandMedPaused_v1';
+let paused = {};
+try { paused = JSON.parse(localStorage.getItem(PAUSE_KEY) || '{}'); } catch(e){}
+function savePaused(){ try{localStorage.setItem(PAUSE_KEY,JSON.stringify(paused))}catch(e){} }
+function isMedPaused(medId){ return !!paused[medId]; }
+function togglePause(medId){
+  paused[medId] = !paused[medId];
+  savePaused();
+  // re-render all cards
+  document.querySelectorAll('.day-card').forEach(card=>{
+    applyStateToCard(card.id.replace('card-',''));
+  });
+  updateStats();
+}
+
 const GIST_ID    = 'd4d8b772693a0cc6864a590a50276842';
 const GIST_FILE  = 'med-checklist-data.json';
 
@@ -290,9 +326,19 @@ function makePillBtn(key, id, icon, name, checked){
   btn.setAttribute('data-key', key);
   btn.setAttribute('data-med', id);
   // innerHTML — no text-based check indicator
+  const pauseBtn = document.createElement('button');
+  pauseBtn.className = 'pill-pause';
+  pauseBtn.title = '暂停这个药';
+  pauseBtn.innerHTML = '⏸';
+  pauseBtn.setAttribute('data-med-pause', id);
+  pauseBtn.addEventListener('click', function(e){
+    e.stopPropagation();
+    togglePause(this.getAttribute('data-med-pause'));
+  });
   btn.innerHTML = '<span class="pill-icon">'+icon+'</span>'
     +'<span class="pill-name">'+name+'</span>'
     +dotSVG(checked);
+  btn.appendChild(pauseBtn);
   btn.addEventListener('click', function(){
     toggle(this.getAttribute('data-key'), this.getAttribute('data-med'));
   });
@@ -324,36 +370,72 @@ function applyStateToCard(key){
   rowPending.innerHTML = '';
   rowDone.innerHTML = '';
 
-  const allIds = [...MEDS.map(m=>m.id), 'fen1','fen2'];
-  const total = allIds.length;
+  // paused bar
+  let rowPaused = document.getElementById('paused-'+key);
+  if(!rowPaused){
+    rowPaused = document.createElement('div');
+    rowPaused.className = 'paused-bar';
+    rowPaused.id = 'paused-'+key;
+    // insert before progress bar
+    const prog = document.getElementById('prog-'+key);
+    if(prog && prog.parentNode) prog.parentNode.insertBefore(rowPaused, prog.parentNode.lastElementChild);
+    else rowDone.parentNode.appendChild(rowPaused);
+  }
+  rowPaused.innerHTML = '';
+
+  const activeMeds = MEDS.filter(m=>!isMedPaused(m.id));
+  const pausedMeds = MEDS.filter(m=>isMedPaused(m.id));
+  const fenPaused  = isMedPaused('fen');
+  const activeTotal = activeMeds.length + (fenPaused ? 0 : 2);
   let done = 0;
 
   // regular meds
-  MEDS.forEach(med => {
+  activeMeds.forEach(med => {
     const chk = !!s[med.id];
     if(chk) done++;
     const btn = makePillBtn(key, med.id, med.icon, med.name, chk);
     (chk ? rowDone : rowPending).appendChild(btn);
   });
 
+  // paused meds — show as grey tags with click-to-resume
+  pausedMeds.forEach(med => {
+    const tag = document.createElement('button');
+    tag.className = 'paused-pill';
+    tag.title = '点击恢复';
+    tag.setAttribute('data-med-pause', med.id);
+    tag.innerHTML = '<span class="pp-icon">'+med.icon+'</span><span class="pp-name">'+med.name+' (暂停)</span>';
+    tag.addEventListener('click', function(){ togglePause(this.getAttribute('data-med-pause')); });
+    rowPaused.appendChild(tag);
+  });
+
   // fen group
   const c1 = !!s['fen1'], c2 = !!s['fen2'];
-  if(c1) done++; if(c2) done++;
-
-  if(c1 === c2){
-    // both same state — keep as joined group
-    const grp = document.createElement('div');
-    grp.className = 'fen-group';
-    grp.id = 'fen-group-'+key;
-    grp.appendChild(makeFenHalf(key,'fen1','芬吗通①',c1,'right'));
-    grp.appendChild(makeFenHalf(key,'fen2','芬吗通②',c2,'left'));
-    (c1 ? rowDone : rowPending).appendChild(grp);
+  if(!fenPaused){
+    if(c1) done++; if(c2) done++;
+    if(c1 === c2){
+      const grp = document.createElement('div');
+      grp.className = 'fen-group';
+      grp.id = 'fen-group-'+key;
+      grp.appendChild(makeFenHalf(key,'fen1','芬吗通①',c1,'right'));
+      grp.appendChild(makeFenHalf(key,'fen2','芬吗通②',c2,'left'));
+      (c1 ? rowDone : rowPending).appendChild(grp);
+    } else {
+      [['fen1','芬吗通①',c1],['fen2','芬吗通②',c2]].forEach(([fid,nm,chk])=>{
+        (chk ? rowDone : rowPending).appendChild(makePillBtn(key, fid, '🌸', nm, chk));
+      });
+    }
   } else {
-    // split — put each individually
-    [['fen1','芬吗通①',c1],['fen2','芬吗通②',c2]].forEach(([fid,nm,chk])=>{
-      (chk ? rowDone : rowPending).appendChild(makePillBtn(key, fid, '🌸', nm, chk));
-    });
+    // fen paused
+    const tag = document.createElement('button');
+    tag.className = 'paused-pill';
+    tag.title = '点击恢复';
+    tag.setAttribute('data-med-pause','fen');
+    tag.innerHTML = '<span class="pp-icon">🌸</span><span class="pp-name">芬吗通 (暂停)</span>';
+    tag.addEventListener('click', function(){ togglePause('fen'); });
+    rowPaused.appendChild(tag);
   }
+
+  const total = activeTotal;
 
   const fill = document.getElementById('prog-'+key);
   if(fill) fill.style.width = Math.round(done/total*100)+'%';
@@ -363,7 +445,8 @@ function updateStats(){
   const today = new Date();
   const todayKey = dk(today);
   const ts = state[todayKey] || {};
-  const allMeds = [...MEDS.map(m=>m.id),'fen1','fen2'];
+  const allMeds = [...MEDS.filter(m=>!isMedPaused(m.id)).map(m=>m.id),
+    ...( isMedPaused('fen') ? [] : ['fen1','fen2'] )];
   const todayDone  = allMeds.filter(id=>ts[id]).length;
   const todayTotal = allMeds.length;
   document.getElementById('totalDone').textContent  = todayDone;
