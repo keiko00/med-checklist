@@ -87,13 +87,18 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
 .paused-pill .pp-name{pointer-events:none;text-decoration:line-through;opacity:0.6}
 .paused-pill .pp-resume{font-size:10px;pointer-events:none;margin-left:2px;opacity:0.8}
 /* pause btn on pill */
-.pill-pause{display:inline-flex;align-items:center;justify-content:center;
+.pill-skip{display:inline-flex;align-items:center;justify-content:center;
   width:16px;height:16px;border-radius:50%;border:none;background:rgba(0,0,0,0.06);
   color:#c4b89e;font-size:9px;cursor:pointer;padding:0;margin-left:3px;
   pointer-events:all;flex-shrink:0;transition:background .15s,color .15s;font-weight:700}
-.pill-pause:hover{background:#e05a5a;color:#fff}
-.pill-btn.checked .pill-pause{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
-.pill-btn.checked .pill-pause:hover{background:rgba(255,255,255,0.35);color:#fff}
+.pill-skip:hover{background:#e05a5a;color:#fff}
+/* skipped state */
+.pill-btn.skipped{background:#f0ece2;border-color:#d4c9b4;color:#c4b89e;
+  box-shadow:0 3px 0 0 #e0d8cc;text-decoration:line-through;opacity:0.7}
+.pill-btn.skipped:hover{opacity:0.9;border-color:#a89878}
+.pill-btn.skipped .pill-skip{background:rgba(0,0,0,0.04);color:#19c8b9}
+.pill-btn.skipped .pill-skip:hover{background:#19c8b9;color:#fff}
+.fen-half.skipped{background:#f0ece2;color:#c4b89e;text-decoration:line-through}
 
 @media(max-width:480px){body{padding:16px 10px 80px}.header-card{padding:20px 18px 18px}.header-card h1{font-size:20px}.day-card{padding:12px 12px}.pills-pending,.pills-done{gap:6px}.pill-btn{padding:0 10px;font-size:11px}.stat-bar{gap:12px;padding:12px 14px}.stat-num{font-size:22px}}
 @media print{body{background:white;padding:10px}.bg-blob,.back-to-top,.footer-sea{display:none}.day-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.pill-btn{box-shadow:none}}
@@ -119,10 +124,6 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
   <div style="text-align:right;margin:-14px 0 12px;padding-right:4px">
     <span id="syncStatus" style="font-size:11px;font-weight:600;color:#9f927d">☁️ 加载中…</span>
   </div>
-  <!-- 暂停药柜 -->
-  <div id="pausedPanel" style="display:none;background:rgb(247,243,223);border-radius:20px;padding:14px 18px;margin-bottom:16px;box-shadow:0 4px 10px rgba(107,92,67,.15);border:2px dashed #d4c9b4">
-    <div style="font-size:13px;font-weight:700;color:#794f27;margin-bottom:10px">⏸ 暂停中的药</div>
-    <div id="pausedList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
   </div>
   <div class="notice-card">
     <div class="notice-title">⚠️ 用药注意事项</div>
@@ -151,34 +152,19 @@ const MEDS = [
 const SPECIAL = {'2026-6-1': {label:'⚡ B超日', cls:'bsupo'}};
 const STORAGE_KEY = 'islandMedState_v2';
 
-const PAUSE_KEY = 'islandMedPaused_v3';
-let paused = {};
-try {
-  const raw = JSON.parse(localStorage.getItem(PAUSE_KEY) || '{}');
-  // 只保留合法的 med id
-  const validIds = ['asp','hyd','fol','vd','tcm','fen'];
-  Object.keys(raw).forEach(k=>{ if(validIds.includes(k)) paused[k]=raw[k]; });
-} catch(e){}
-function savePaused(){ try{localStorage.setItem(PAUSE_KEY,JSON.stringify(paused))}catch(e){} }
-function isMedPaused(medId, dateKey){
-  if(!paused[medId]) return false;
-  // paused[medId] = 'YYYY-M-D' string (date paused from)
-  return dateKey >= paused[medId];
-}
-function pauseMed(medId){
-  paused[medId] = dk(new Date()); // paused from today
-  savePaused();
-  rerenderAll();
-}
-function resumeMed(medId){
-  delete paused[medId];
-  savePaused();
-  rerenderAll();
-}
-function rerenderAll(){
+const SKIP_KEY = 'islandMedSkipped_v1';
+let skipped = {};
+try { skipped = JSON.parse(localStorage.getItem(SKIP_KEY) || '{}'); } catch(e){}
+function saveSkipped(){ try{localStorage.setItem(SKIP_KEY,JSON.stringify(skipped))}catch(e){} }
+function isMedSkipped(medId){ return !!skipped[medId]; }
+function toggleSkip(medId){
+  skipped[medId] = !skipped[medId];
+  saveSkipped();
   document.querySelectorAll('.day-card').forEach(card=>{
     applyStateToCard(card.id.replace('card-',''));
   });
+  updateStats();
+});
   updateStats();
   renderPausedPanel();
 }
@@ -393,19 +379,19 @@ function applyStateToCard(key){
   rowPending.innerHTML = '';
   rowDone.innerHTML = '';
 
-  // paused meds shown in top panel, not per-card
 
-  const activeMeds = MEDS.filter(m=>!isMedPaused(m.id, key));
-  const pausedMeds = MEDS.filter(m=>isMedPaused(m.id, key));
-  const fenPaused  = isMedPaused('fen', key);
-  const activeTotal = activeMeds.length + (fenPaused ? 0 : 2);
+
+  const fenSkipped = isMedSkipped('fen');
+  const activeTotal = MEDS.filter(m=>!isMedSkipped(m.id)).length + (fenSkipped ? 0 : 2);
   let done = 0;
 
-  // regular meds
-  activeMeds.forEach(med => {
-    const chk = !!s[med.id];
+  // regular meds — skipped ones shown greyed in pending, not counted
+  MEDS.forEach(med => {
+    const skip = isMedSkipped(med.id);
+    const chk = !skip && !!s[med.id];
     if(chk) done++;
     const btn = makePillBtn(key, med.id, med.icon, med.name, chk);
+    if(skip) { btn.classList.add('skipped'); btn.classList.remove('checked'); }
     (chk ? rowDone : rowPending).appendChild(btn);
   });
 
@@ -448,9 +434,8 @@ function updateStats(){
   const today = new Date();
   const todayKey = dk(today);
   const ts = state[todayKey] || {};
-  const _tdk = dk(today);
-  const allMeds = [...MEDS.filter(m=>!isMedPaused(m.id,_tdk)).map(m=>m.id),
-    ...( isMedPaused('fen',_tdk) ? [] : ['fen1','fen2'] )];
+  const allMeds = [...MEDS.filter(m=>!isMedSkipped(m.id)).map(m=>m.id),
+    ...( isMedSkipped('fen') ? [] : ['fen1','fen2'] )];
   const todayDone  = allMeds.filter(id=>ts[id]).length;
   const todayTotal = allMeds.length;
   document.getElementById('totalDone').textContent  = todayDone;
@@ -469,14 +454,6 @@ function updateStats(){
 }
 
 
-function renderPausedPanel(){
-  const panel = document.getElementById('pausedPanel');
-  const list  = document.getElementById('pausedList');
-  if(!panel || !list) return;
-  list.innerHTML = '';
-  const allMedDefs = [...MEDS, {id:'fen',icon:'🌸',name:'芬吗通'}];
-  const pausedEntries = allMedDefs.filter(m => paused[m.id]);
-  if(pausedEntries.length === 0){ panel.style.display='none'; return; }
   panel.style.display = 'block';
   pausedEntries.forEach(med => {
     const since = paused[med.id];
@@ -506,7 +483,6 @@ setTimeout(()=>{
 },300);
 // pull latest data from cloud on load
 pullFromGist();
-renderPausedPanel();
 </script>
 </body>
 </html>
