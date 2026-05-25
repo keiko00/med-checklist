@@ -126,9 +126,12 @@ const SPECIAL = {'2026-6-1': {label:'⚡ B超日', cls:'bsupo'}};
 const STORAGE_KEY = 'islandMedState_v2';
 const GIST_ID    = 'd4d8b772693a0cc6864a590a50276842';
 const GIST_FILE  = 'med-checklist-data.json';
-// token stored in URL hash or localStorage (never in source code)
-let GIST_TOKEN = localStorage.getItem('med_gist_token') || location.hash.replace('#','');
-if(GIST_TOKEN){ localStorage.setItem('med_gist_token', GIST_TOKEN); location.hash=''; }
+
+// 先存 token，再清 hash，顺序不能反
+const _hashToken = location.hash.replace('#','').trim();
+if(_hashToken){ localStorage.setItem('med_gist_token', _hashToken); }
+if(location.hash) history.replaceState(null,'',location.pathname+location.search);
+let GIST_TOKEN = localStorage.getItem('med_gist_token') || '';
 
 let state = {};
 let syncTimer = null;
