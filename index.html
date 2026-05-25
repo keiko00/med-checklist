@@ -119,6 +119,11 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
   <div style="text-align:right;margin:-14px 0 12px;padding-right:4px">
     <span id="syncStatus" style="font-size:11px;font-weight:600;color:#9f927d">☁️ 加载中…</span>
   </div>
+  <!-- 暂停药柜 -->
+  <div id="pausedPanel" style="display:none;background:rgb(247,243,223);border-radius:20px;padding:14px 18px;margin-bottom:16px;box-shadow:0 4px 10px rgba(107,92,67,.15);border:2px dashed #d4c9b4">
+    <div style="font-size:13px;font-weight:700;color:#794f27;margin-bottom:10px">⏸ 暂停中的药</div>
+    <div id="pausedList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+  </div>
   <div class="notice-card">
     <div class="notice-title">⚠️ 用药注意事项</div>
     <ul>
@@ -146,7 +151,7 @@ const MEDS = [
 const SPECIAL = {'2026-6-1': {label:'⚡ B超日', cls:'bsupo'}};
 const STORAGE_KEY = 'islandMedState_v2';
 
-const PAUSE_KEY = 'islandMedPaused_v2';
+const PAUSE_KEY = 'islandMedPaused_v3';
 let paused = {};
 try {
   const raw = JSON.parse(localStorage.getItem(PAUSE_KEY) || '{}');
@@ -155,15 +160,27 @@ try {
   Object.keys(raw).forEach(k=>{ if(validIds.includes(k)) paused[k]=raw[k]; });
 } catch(e){}
 function savePaused(){ try{localStorage.setItem(PAUSE_KEY,JSON.stringify(paused))}catch(e){} }
-function isMedPaused(medId){ return !!paused[medId]; }
-function togglePause(medId){
-  paused[medId] = !paused[medId];
+function isMedPaused(medId, dateKey){
+  if(!paused[medId]) return false;
+  // paused[medId] = 'YYYY-M-D' string (date paused from)
+  return dateKey >= paused[medId];
+}
+function pauseMed(medId){
+  paused[medId] = dk(new Date()); // paused from today
   savePaused();
-  // re-render all cards
+  rerenderAll();
+}
+function resumeMed(medId){
+  delete paused[medId];
+  savePaused();
+  rerenderAll();
+}
+function rerenderAll(){
   document.querySelectorAll('.day-card').forEach(card=>{
     applyStateToCard(card.id.replace('card-',''));
   });
   updateStats();
+  renderPausedPanel();
 }
 
 const GIST_ID    = 'd4d8b772693a0cc6864a590a50276842';
@@ -339,7 +356,7 @@ function makePillBtn(key, id, icon, name, checked){
   pauseBtn.setAttribute('data-med-pause', id);
   pauseBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    togglePause(this.getAttribute('data-med-pause'));
+    pauseMed(this.getAttribute('data-med-pause'));
   });
   btn.innerHTML = '<span class="pill-icon">'+icon+'</span>'
     +'<span class="pill-name">'+name+'</span>'
@@ -376,22 +393,11 @@ function applyStateToCard(key){
   rowPending.innerHTML = '';
   rowDone.innerHTML = '';
 
-  // paused bar
-  let rowPaused = document.getElementById('paused-'+key);
-  if(!rowPaused){
-    rowPaused = document.createElement('div');
-    rowPaused.className = 'paused-bar';
-    rowPaused.id = 'paused-'+key;
-    // insert before progress bar
-    const prog = document.getElementById('prog-'+key);
-    if(prog && prog.parentNode) prog.parentNode.insertBefore(rowPaused, prog.parentNode.lastElementChild);
-    else rowDone.parentNode.appendChild(rowPaused);
-  }
-  rowPaused.innerHTML = '';
+  // paused meds shown in top panel, not per-card
 
-  const activeMeds = MEDS.filter(m=>!isMedPaused(m.id));
-  const pausedMeds = MEDS.filter(m=>isMedPaused(m.id));
-  const fenPaused  = isMedPaused('fen');
+  const activeMeds = MEDS.filter(m=>!isMedPaused(m.id, key));
+  const pausedMeds = MEDS.filter(m=>isMedPaused(m.id, key));
+  const fenPaused  = isMedPaused('fen', key);
   const activeTotal = activeMeds.length + (fenPaused ? 0 : 2);
   let done = 0;
 
@@ -410,7 +416,7 @@ function applyStateToCard(key){
     tag.title = '点击恢复';
     tag.setAttribute('data-med-pause', med.id);
     tag.innerHTML = '<span class="pp-icon">'+med.icon+'</span><span class="pp-name">'+med.name+'</span><span class="pp-resume">↩</span>';
-    tag.addEventListener('click', function(){ togglePause(this.getAttribute('data-med-pause')); });
+    tag.addEventListener('click', function(){ pauseMed(this.getAttribute('data-med-pause')); });
     rowPaused.appendChild(tag);
   });
 
@@ -430,15 +436,6 @@ function applyStateToCard(key){
         (chk ? rowDone : rowPending).appendChild(makePillBtn(key, fid, '🌸', nm, chk));
       });
     }
-  } else {
-    // fen paused
-    const tag = document.createElement('button');
-    tag.className = 'paused-pill';
-    tag.title = '点击恢复';
-    tag.setAttribute('data-med-pause','fen');
-    tag.innerHTML = '<span class="pp-icon">🌸</span><span class="pp-name">芬吗通</span><span class="pp-resume">↩</span>';
-    tag.addEventListener('click', function(){ togglePause('fen'); });
-    rowPaused.appendChild(tag);
   }
 
   const total = activeTotal;
@@ -451,8 +448,9 @@ function updateStats(){
   const today = new Date();
   const todayKey = dk(today);
   const ts = state[todayKey] || {};
-  const allMeds = [...MEDS.filter(m=>!isMedPaused(m.id)).map(m=>m.id),
-    ...( isMedPaused('fen') ? [] : ['fen1','fen2'] )];
+  const _tdk = dk(today);
+  const allMeds = [...MEDS.filter(m=>!isMedPaused(m.id,_tdk)).map(m=>m.id),
+    ...( isMedPaused('fen',_tdk) ? [] : ['fen1','fen2'] )];
   const todayDone  = allMeds.filter(id=>ts[id]).length;
   const todayTotal = allMeds.length;
   document.getElementById('totalDone').textContent  = todayDone;
@@ -470,6 +468,31 @@ function updateStats(){
   document.getElementById('streakDays').textContent = streak;
 }
 
+
+function renderPausedPanel(){
+  const panel = document.getElementById('pausedPanel');
+  const list  = document.getElementById('pausedList');
+  if(!panel || !list) return;
+  list.innerHTML = '';
+  const allMedDefs = [...MEDS, {id:'fen',icon:'🌸',name:'芬吗通'}];
+  const pausedEntries = allMedDefs.filter(m => paused[m.id]);
+  if(pausedEntries.length === 0){ panel.style.display='none'; return; }
+  panel.style.display = 'block';
+  pausedEntries.forEach(med => {
+    const since = paused[med.id];
+    const btn = document.createElement('button');
+    btn.className = 'pill-btn';
+    btn.style.cssText = 'background:#f0ece2;border-color:#d4c9b4;color:#9f927d;box-shadow:0 3px 0 0 #d4c9b4';
+    btn.innerHTML = '<span class="pill-icon" style="opacity:.5">'+med.icon+'</span>'
+      +'<span class="pill-name" style="text-decoration:line-through;opacity:.6">'+med.name+'</span>'
+      +'<span style="font-size:10px;margin-left:4px;opacity:.5">from '+since+'</span>'
+      +'<span style="font-size:11px;margin-left:6px;color:#19c8b9;font-weight:700">↩ 恢复</span>';
+    btn.title = '点击恢复：从今天起重新服用';
+    btn.addEventListener('click', ()=>{ resumeMed(med.id); });
+    list.appendChild(btn);
+  });
+}
+
 document.getElementById('backToTop').addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
 window.addEventListener('scroll', ()=>{
   const btn = document.getElementById('backToTop');
@@ -483,6 +506,7 @@ setTimeout(()=>{
 },300);
 // pull latest data from cloud on load
 pullFromGist();
+renderPausedPanel();
 </script>
 </body>
 </html>
