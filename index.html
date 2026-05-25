@@ -228,7 +228,7 @@ function buildAll(){
     const card = buildDayCard(d, key, special);
     weekBlock.appendChild(card);
     // fill pills AFTER card is in DOM so getElementById works
-    renderPills(key);
+    applyStateToCard(key);
   }
   updateStats();
 }
