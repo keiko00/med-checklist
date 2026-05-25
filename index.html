@@ -166,7 +166,6 @@ function toggleSkip(medId){
   updateStats();
 });
   updateStats();
-  renderPausedPanel();
 }
 
 const GIST_ID    = 'd4d8b772693a0cc6864a590a50276842';
@@ -340,9 +339,9 @@ function makePillBtn(key, id, icon, name, checked){
   pauseBtn.title = '今日不服用';
   pauseBtn.innerHTML = '✕';
   pauseBtn.setAttribute('data-med-pause', id);
-  pauseBtn.addEventListener('click', function(e){
+  skipBtn.addEventListener('click', function(e){
     e.stopPropagation();
-    pauseMed(this.getAttribute('data-med-pause'));
+    toggleSkip(this.getAttribute('data-skip-id'));
   });
   btn.innerHTML = '<span class="pill-icon">'+icon+'</span>'
     +'<span class="pill-name">'+name+'</span>'
@@ -394,21 +393,9 @@ function applyStateToCard(key){
     if(skip) { btn.classList.add('skipped'); btn.classList.remove('checked'); }
     (chk ? rowDone : rowPending).appendChild(btn);
   });
-
-  // paused meds — show as grey tags with click-to-resume
-  pausedMeds.forEach(med => {
-    const tag = document.createElement('button');
-    tag.className = 'paused-pill';
-    tag.title = '点击恢复';
-    tag.setAttribute('data-med-pause', med.id);
-    tag.innerHTML = '<span class="pp-icon">'+med.icon+'</span><span class="pp-name">'+med.name+'</span><span class="pp-resume">↩</span>';
-    tag.addEventListener('click', function(){ pauseMed(this.getAttribute('data-med-pause')); });
-    rowPaused.appendChild(tag);
-  });
-
   // fen group
   const c1 = !!s['fen1'], c2 = !!s['fen2'];
-  if(!fenPaused){
+  if(!fenSkipped){
     if(c1) done++; if(c2) done++;
     if(c1 === c2){
       const grp = document.createElement('div');
@@ -453,22 +440,6 @@ function updateStats(){
   document.getElementById('streakDays').textContent = streak;
 }
 
-
-  panel.style.display = 'block';
-  pausedEntries.forEach(med => {
-    const since = paused[med.id];
-    const btn = document.createElement('button');
-    btn.className = 'pill-btn';
-    btn.style.cssText = 'background:#f0ece2;border-color:#d4c9b4;color:#9f927d;box-shadow:0 3px 0 0 #d4c9b4';
-    btn.innerHTML = '<span class="pill-icon" style="opacity:.5">'+med.icon+'</span>'
-      +'<span class="pill-name" style="text-decoration:line-through;opacity:.6">'+med.name+'</span>'
-      +'<span style="font-size:10px;margin-left:4px;opacity:.5">from '+since+'</span>'
-      +'<span style="font-size:11px;margin-left:6px;color:#19c8b9;font-weight:700">↩ 恢复</span>';
-    btn.title = '点击恢复：从今天起重新服用';
-    btn.addEventListener('click', ()=>{ resumeMed(med.id); });
-    list.appendChild(btn);
-  });
-}
 
 document.getElementById('backToTop').addEventListener('click', ()=>window.scrollTo({top:0,behavior:'smooth'}));
 window.addEventListener('scroll', ()=>{
