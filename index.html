@@ -76,23 +76,24 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
 .back-to-top:active{transform:translateY(2px);box-shadow:0 1px 0 0 #bdaea0}
 
 /* paused med tag */
-.paused-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:8px;border-top:1.5px dashed #e8e0d0}
+.paused-bar{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;padding-top:6px;border-top:1.5px dashed #e8e0d0}
 .paused-bar:empty{display:none}
 .paused-pill{display:inline-flex;align-items:center;gap:5px;padding:0 10px 0 8px;height:28px;border-radius:50px;
-  background:#f0ece2;color:#c4b89e;font-family:inherit;font-size:11px;font-weight:600;
-  border:1.5px dashed #d4c9b4;cursor:pointer;user-select:none;transition:all .15s;
+  background:#f0ece2;color:#9f927d;font-family:inherit;font-size:11px;font-weight:600;
+  border:1.5px solid #d4c9b4;cursor:pointer;user-select:none;transition:all .15s;
   -webkit-tap-highlight-color:transparent}
-.paused-pill:hover{background:#ffe8ed;color:#e05a5a;border-color:#f8a6b2}
-.paused-pill .pp-icon{font-size:12px;pointer-events:none}
-.paused-pill .pp-name{pointer-events:none}
+.paused-pill:hover{background:#e6f9f6;color:#19c8b9;border-color:#19c8b9}
+.paused-pill .pp-icon{font-size:12px;pointer-events:none;opacity:0.5}
+.paused-pill .pp-name{pointer-events:none;text-decoration:line-through;opacity:0.6}
+.paused-pill .pp-resume{font-size:10px;pointer-events:none;margin-left:2px;opacity:0.8}
 /* pause btn on pill */
 .pill-pause{display:inline-flex;align-items:center;justify-content:center;
   width:16px;height:16px;border-radius:50%;border:none;background:rgba(0,0,0,0.06);
-  color:#9f927d;font-size:10px;cursor:pointer;padding:0;margin-left:2px;
-  pointer-events:all;flex-shrink:0;transition:background .15s,color .15s}
-.pill-pause:hover{background:#f8a6b2;color:#fff}
-.pill-btn.checked .pill-pause{background:rgba(255,255,255,0.2);color:#fff}
-.pill-btn.checked .pill-pause:hover{background:rgba(255,255,255,0.4)}
+  color:#c4b89e;font-size:9px;cursor:pointer;padding:0;margin-left:3px;
+  pointer-events:all;flex-shrink:0;transition:background .15s,color .15s;font-weight:700}
+.pill-pause:hover{background:#e05a5a;color:#fff}
+.pill-btn.checked .pill-pause{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.7)}
+.pill-btn.checked .pill-pause:hover{background:rgba(255,255,255,0.35);color:#fff}
 
 @media(max-width:480px){body{padding:16px 10px 80px}.header-card{padding:20px 18px 18px}.header-card h1{font-size:20px}.day-card{padding:12px 12px}.pills-pending,.pills-done{gap:6px}.pill-btn{padding:0 10px;font-size:11px}.stat-bar{gap:12px;padding:12px 14px}.stat-num{font-size:22px}}
 @media print{body{background:white;padding:10px}.bg-blob,.back-to-top,.footer-sea{display:none}.day-card{box-shadow:none;border:1px solid #ddd;break-inside:avoid}.pill-btn{box-shadow:none}}
@@ -333,8 +334,8 @@ function makePillBtn(key, id, icon, name, checked){
   // innerHTML — no text-based check indicator
   const pauseBtn = document.createElement('button');
   pauseBtn.className = 'pill-pause';
-  pauseBtn.title = '暂停这个药';
-  pauseBtn.innerHTML = '⏸';
+  pauseBtn.title = '今日不服用';
+  pauseBtn.innerHTML = '✕';
   pauseBtn.setAttribute('data-med-pause', id);
   pauseBtn.addEventListener('click', function(e){
     e.stopPropagation();
@@ -408,7 +409,7 @@ function applyStateToCard(key){
     tag.className = 'paused-pill';
     tag.title = '点击恢复';
     tag.setAttribute('data-med-pause', med.id);
-    tag.innerHTML = '<span class="pp-icon">'+med.icon+'</span><span class="pp-name">'+med.name+' (暂停)</span>';
+    tag.innerHTML = '<span class="pp-icon">'+med.icon+'</span><span class="pp-name">'+med.name+'</span><span class="pp-resume">↩</span>';
     tag.addEventListener('click', function(){ togglePause(this.getAttribute('data-med-pause')); });
     rowPaused.appendChild(tag);
   });
@@ -435,7 +436,7 @@ function applyStateToCard(key){
     tag.className = 'paused-pill';
     tag.title = '点击恢复';
     tag.setAttribute('data-med-pause','fen');
-    tag.innerHTML = '<span class="pp-icon">🌸</span><span class="pp-name">芬吗通 (暂停)</span>';
+    tag.innerHTML = '<span class="pp-icon">🌸</span><span class="pp-name">芬吗通</span><span class="pp-resume">↩</span>';
     tag.addEventListener('click', function(){ togglePause('fen'); });
     rowPaused.appendChild(tag);
   }
