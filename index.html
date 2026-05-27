@@ -75,10 +75,11 @@ body{font-family:"Nunito","Noto Sans SC",-apple-system,"PingFang SC",sans-serif;
 .status-active{background:#d4f5e0;color:#2d7d4e}
 .status-future{background:#fff3cd;color:#856404}
 .status-stopped{background:#f0ece2;color:#9f927d}
-.manage-del-btn{width:28px;height:28px;border-radius:50%;border:none;background:#ffcdd2;color:#c62828;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.manage-del-btn:hover{background:#ef9a9a}
-.manage-del-btn.restore{background:#d4f5e0;color:#2d7d4e}
-.manage-del-btn.restore:hover{background:#a8e6bf}
+.manage-btn{width:28px;height:28px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .15s}
+.manage-btn:hover{opacity:.75}
+.manage-btn.btn-stop{background:#f0ece2;color:#9f927d}
+.manage-btn.btn-restore{background:#d4f5e0;color:#2d7d4e}
+.manage-btn.btn-delete{background:#ffecec;color:#c62828;margin-left:4px}
 .add-med-form{margin-top:14px;padding-top:14px;border-top:1.5px dashed #d4c9b4;display:flex;flex-direction:column;gap:8px}
 .add-med-row{display:flex;gap:8px}
 .add-med-row input{flex:1;padding:8px 12px;border:2px solid #d4c9b4;border-radius:10px;font-family:inherit;font-size:13px;color:#725d42;background:#fff;outline:none}
@@ -215,7 +216,7 @@ function renderManagePanel(){
   meds.forEach((m,i)=>{
     const el=document.createElement('div');el.className='manage-item';
     let lbl,cls;
-    if(m.stopped){lbl='已停用';cls='status-stopped'}
+    if(m.stopped){lbl='已暂停';cls='status-stopped'}
     else if(m.addedDate&&m.addedDate>today){lbl=m.addedDate+' 起';cls='status-future'}
     else{lbl='服用中';cls='status-active'}
     el.innerHTML=`<span style="font-size:18px">${m.icon}</span>
@@ -224,8 +225,8 @@ function renderManagePanel(){
         <div class="manage-item-date">从 ${m.addedDate||'—'} 开始</div>
       </div>
       <span class="manage-item-status ${cls}">${lbl}</span>
-      <button class="manage-del-btn${m.stopped?' restore':''}" onclick="stopMed(${i})" title="${m.stopped?'恢复服用':'停用'}">${m.stopped?'↩':'×'}</button>
-      <button class="manage-del-btn" onclick="deleteMed(${i})" title="永久删除" style="background:#e8453c;color:#fff;margin-left:4px">🗑</button>`;
+      <button class="manage-btn ${m.stopped?'btn-restore':'btn-stop'}" onclick="stopMed(${i})" title="${m.stopped?'恢复服用':'暂停'}">${m.stopped?'▶':'⏸'}</button>
+      <button class="manage-btn btn-delete" onclick="deleteMed(${i})" title="删除">✕</button>`;
     c.appendChild(el);
   });
   const nd=document.getElementById('newDate');
