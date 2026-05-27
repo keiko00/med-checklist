@@ -232,9 +232,9 @@ const SPECIAL = {'2026-6-1':{label:'⚡ B超日'}};
 
 const STORAGE_KEY = 'islandMedState_v2';
 
-const SKIP_KEY    = 'islandMedSkipped_v1';
-
-const GIST_ID     = 'd4d8b772693a0cc6864a590a50276842';
+const SKIP_KEY     = 'islandMedSkipped_v2';
+const RESTORE_KEY  = 'islandMedRestore_v1';
+const GIST_ID      = 'd4d8b772693a0cc6864a590a50276842';
 
 const GIST_FILE   = 'med-checklist-data.json';
 
@@ -281,16 +281,20 @@ function isMedSkipped(id, dateKey){
   return !!skipped[id];
 }
 
+function saveRestore(){ try { localStorage.setItem(RESTORE_KEY, JSON.stringify(restoredAt)); } catch(e){} }
+
 function toggleSkip(id){
-
-  skipped[id] = !skipped[id];
-
+  if(skipped[id]){
+    delete skipped[id];
+    restoredAt[id] = dk(new Date());
+  } else {
+    skipped[id] = true;
+    delete restoredAt[id];
+  }
   saveSkipped();
-
+  saveRestore();
   document.querySelectorAll('.day-card').forEach(c => applyStateToCard(c.id.replace('card-','')));
-
   updateStats();
-
 }
 
 
