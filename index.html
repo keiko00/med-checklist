@@ -7,12 +7,9 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-/* ===== animal-island-ui Design Tokens ===== */
 :root {
   --ac-primary: #19c8b9; --ac-primary-hover: #3dd4c6; --ac-primary-active: #50B9AB;
-  --ac-success: #6fba2c;
-  --ac-warning: #f5c31c;
-  --ac-error: #e05a5a;
+  --ac-success: #6fba2c; --ac-warning: #f5c31c; --ac-error: #e05a5a;
   --ac-text: #794f27; --ac-text-secondary: #9f927d; --ac-text-disabled: #c4b89e;
   --ac-border: #c4b89e; --ac-border-light: #e8e2d6;
   --ac-bg: #f8f8f0; --ac-bg-secondary: #f0e8d8;
@@ -24,68 +21,47 @@
   --ac-radius-sm: 16px; --ac-radius: 20px; --ac-radius-lg: 24px;
   --ac-font: "Nunito","Noto Sans SC","Zen Maru Gothic","HarmonyOS Sans SC","MiSans","PingFang SC","Microsoft YaHei",sans-serif;
 }
-
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-
 body{
   font-family:var(--ac-font);
   background: linear-gradient(180deg, #e8f5e9 0%, #c8e6c9 100%);
-  background-attachment:fixed;
-  min-height:100vh;padding:20px 12px 80px;position:relative;overflow-x:hidden;
+  background-attachment:fixed; min-height:100vh;
+  padding:20px 12px 80px; position:relative; overflow-x:hidden;
 }
-
-/* Decorative leaves */
-body::before{
-  content:'';position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;
-  background:
-    radial-gradient(ellipse at 15% 10%, rgba(111,186,44,0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 85% 85%, rgba(25,200,185,0.06) 0%, transparent 50%),
-    radial-gradient(ellipse at 50% 50%, rgba(247,205,103,0.05) 0%, transparent 60%);
-}
-
+body::before{content:'';position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse at 15% 10%, rgba(111,186,44,0.08) 0%, transparent 50%),
+             radial-gradient(ellipse at 85% 85%, rgba(25,200,185,0.06) 0%, transparent 50%),
+             radial-gradient(ellipse at 50% 50%, rgba(247,205,103,0.05) 0%, transparent 60%);}
 .container{max-width:680px;margin:0 auto;position:relative;z-index:1}
 
 /* ===== Header Card ===== */
-.header-card{
-  background:var(--ac-bg-card);
-  border-radius:40px 35px 45px 38px / 38px 45px 35px 40px;
-  padding:28px 32px 20px;margin-bottom:18px;
-  box-shadow:0 4px 10px rgba(107,92,67,.42);
-  text-align:center;
-}
+.header-card{background:var(--ac-bg-card);border-radius:40px 35px 45px 38px / 38px 45px 35px 40px;
+  padding:28px 32px 20px;margin-bottom:18px;box-shadow:0 4px 10px rgba(107,92,67,.42);text-align:center;}
 .header-card h1{font-size:24px;font-weight:900;color:var(--ac-text);margin-bottom:4px}
 .header-card .subtitle{font-size:13px;color:var(--ac-text-secondary);font-weight:500}
 .leaf-deco{font-size:28px;display:inline-block;animation:leaf-sway 3s ease-in-out infinite}
 @keyframes leaf-sway{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
 
+/* ===== Collapsible Card ===== */
+.card{background:var(--ac-bg-card);border-radius:var(--ac-radius);
+  padding:16px 20px;margin-bottom:18px;box-shadow:var(--ac-shadow);}
+.card-title{font-size:15px;font-weight:800;color:var(--ac-text);margin-bottom:12px;display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none}
+.card-title .arrow{font-size:12px;transition:transform .2s;color:var(--ac-text-secondary)}
+.card-title .arrow.open{transform:rotate(90deg)}
+.card-body{display:none}
+.card-body.open{display:block}
+
 /* ===== Notice Card (dialogue bubble) ===== */
-.notice-card{
-  background:#fffdf5;
-  border-radius:var(--ac-radius);
-  padding:16px 20px;margin-bottom:18px;
-  border:2.5px solid #f7cd67;
-  box-shadow:0 4px 0 0 #e0b800, var(--ac-shadow);
-  font-size:13px;color:#725d42;line-height:2;
-  position:relative;
-}
-.notice-card::after{
-  content:'';position:absolute;bottom:-14px;left:30px;
-  width:0;height:0;
-  border-left:10px solid transparent;
-  border-right:10px solid transparent;
-  border-top:14px solid #fffdf5;
-}
+.notice-card{background:#fffdf5;border-radius:var(--ac-radius);padding:16px 20px;margin-bottom:18px;
+  border:2.5px solid #f7cd67;box-shadow:0 4px 0 0 #e0b800, var(--ac-shadow);font-size:13px;color:#725d42;line-height:2;position:relative;}
+.notice-card::after{content:'';position:absolute;bottom:-14px;left:30px;width:0;height:0;
+  border-left:10px solid transparent;border-right:10px solid transparent;border-top:14px solid #fffdf5;}
 .notice-title{font-size:14px;font-weight:800;color:var(--ac-text);margin-bottom:8px}
 .notice-card li{list-style:none;padding-left:4px}
 
 /* ===== Stat Bar ===== */
-.stat-bar{
-  background:var(--ac-bg-card);
-  border-radius:var(--ac-radius);
-  padding:14px 20px;margin-bottom:10px;
-  display:flex;gap:16px;align-items:center;
-  box-shadow:var(--ac-shadow);
-}
+.stat-bar{background:var(--ac-bg-card);border-radius:var(--ac-radius);padding:14px 20px;margin-bottom:10px;
+  display:flex;gap:16px;align-items:center;box-shadow:var(--ac-shadow);}
 .stat-item{text-align:center;flex:1}
 .stat-num{font-size:28px;font-weight:900;color:var(--ac-text)}
 .stat-label{font-size:11px;color:var(--ac-text-secondary);font-weight:600;margin-top:2px}
@@ -94,124 +70,100 @@ body::before{
 /* ===== Sync Bar ===== */
 .sync-bar{text-align:right;margin-bottom:16px;padding-right:4px}
 
+/* ===== Med Manager ===== */
+.med-mgr-row{display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap}
+.med-mgr-row input{padding:8px 12px;border:2.5px solid var(--ac-border);border-radius:50px;
+  font-family:var(--ac-font);font-size:13px;color:var(--ac-text);background:var(--ac-bg);
+  outline:none;transition:border-color .15s}
+.med-mgr-row input:focus{border-color:var(--ac-primary)}
+.med-mgr-row .mgr-emoji{width:52px;flex:none;text-align:center}
+.med-mgr-row .mgr-name{flex:1;min-width:80px}
+
+.ac-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 18px;border-radius:50px;
+  border:2.5px solid var(--ac-border);background:var(--ac-bg-card);color:var(--ac-text);
+  font-family:var(--ac-font);font-size:13px;font-weight:700;cursor:pointer;
+  box-shadow:0 4px 0 0 #bdaea0;transition:all .15s;outline:none;white-space:nowrap;
+  -webkit-tap-highlight-color:transparent;}
+.ac-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 0 #bdaea0;border-color:#a89878}
+.ac-btn:active{transform:translateY(2px);box-shadow:0 1px 0 0 #bdaea0}
+.ac-btn.primary{background:var(--ac-primary);border-color:#11a89b;color:#fff;box-shadow:0 4px 0 0 #0a9e91}
+.ac-btn.primary:hover{box-shadow:0 5px 0 0 #0a9e91}
+.ac-btn.danger{color:var(--ac-error);border-color:var(--ac-error);box-shadow:0 4px 0 0 #c94444;font-size:11px;padding:4px 12px}
+.ac-btn.danger:hover{background:#fff0f0}
+
+.med-tag-list{display:flex;flex-wrap:wrap;gap:6px}
+.med-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;
+  border-radius:50px;background:var(--ac-bg-secondary);font-size:12px;font-weight:600;
+  color:var(--ac-text);border:2px solid var(--ac-border-light)}
+.med-tag .tag-remove{width:16px;height:16px;border-radius:50%;border:none;
+  background:rgba(0,0,0,0.08);color:var(--ac-text-disabled);font-size:9px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.med-tag .tag-remove:hover{background:var(--ac-error);color:#fff}
+.med-tag .tag-date{font-size:10px;color:var(--ac-text-secondary);font-weight:400}
+
 /* ===== Week Block ===== */
 .week-block{margin-bottom:20px}
-.week-label{
-  font-size:12px;font-weight:700;color:#fff;
-  padding:4px 14px;background:rgba(107,92,67,.25);
-  border-radius:50px;display:inline-block;margin-bottom:10px
-}
+.week-label{font-size:12px;font-weight:700;color:#fff;padding:4px 14px;background:rgba(107,92,67,.25);border-radius:50px;display:inline-block;margin-bottom:10px}
 
 /* ===== Day Card ===== */
-.day-card{
-  background:var(--ac-bg-card);
-  border-radius:var(--ac-radius);
-  padding:14px 16px;margin-bottom:10px;
-  box-shadow:0 4px 10px rgba(107,92,67,.2);
-  transition:transform .25s,box-shadow .25s;
-}
+.day-card{background:var(--ac-bg-card);border-radius:var(--ac-radius);padding:14px 16px;margin-bottom:10px;
+  box-shadow:0 4px 10px rgba(107,92,67,.2);transition:transform .25s,box-shadow .25s;}
 .day-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(107,92,67,.25)}
 .day-card.special{background:#fff8e0;border:2.5px solid #f7cd67;box-shadow:0 4px 0 0 #e0b800, var(--ac-shadow)}
-
 .day-header{display:flex;align-items:center;gap:10px;margin-bottom:12px}
 .day-date{font-size:20px;font-weight:900;color:var(--ac-text);min-width:48px}
 .day-weekday{font-size:12px;font-weight:700;color:var(--ac-success);letter-spacing:1px}
-.day-badge{
-  margin-left:auto;font-size:11px;font-weight:700;
-  padding:3px 10px;border-radius:50px;
-  background:#f7cd67;color:#725d42;
-}
+.day-badge{margin-left:auto;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;background:#f7cd67;color:#725d42;}
 
-/* ===== Pill Buttons (Animal Island style) ===== */
 .pills-row{display:flex;flex-wrap:wrap;gap:8px}
-.pills-done{
-  margin-top:8px;padding-top:8px;
-  border-top:1.5px dashed var(--ac-border);
-  display:flex;flex-wrap:wrap;gap:8px;
-}
+.pills-done{margin-top:8px;padding-top:8px;border-top:1.5px dashed var(--ac-border);display:flex;flex-wrap:wrap;gap:8px}
 .pills-done:empty{display:none}
 
-.pill-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:0 14px;height:38px;border-radius:50px;
-  border:2.5px solid var(--ac-border);
-  background:var(--ac-bg-card);
-  color:var(--ac-text);
-  font-family:var(--ac-font);font-size:12px;font-weight:700;
-  cursor:pointer;user-select:none;
-  box-shadow:0 4px 0 0 #bdaea0;
-  transition:all .15s;
-  -webkit-tap-highlight-color:transparent;outline:none;
-}
+.pill-btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:38px;border-radius:50px;
+  border:2.5px solid var(--ac-border);background:var(--ac-bg-card);color:var(--ac-text);
+  font-family:var(--ac-font);font-size:12px;font-weight:700;cursor:pointer;user-select:none;
+  box-shadow:0 4px 0 0 #bdaea0;transition:all .15s;-webkit-tap-highlight-color:transparent;outline:none;}
 .pill-btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 0 #bdaea0;border-color:#a89878}
 .pill-btn:active{transform:translateY(2px);box-shadow:0 1px 0 0 #bdaea0}
-
-.pill-btn.checked{
-  background:var(--ac-primary);border-color:#11a89b;color:#fff;
-  box-shadow:0 4px 0 0 #0a9e91;
-}
+.pill-btn.checked{background:var(--ac-primary);border-color:#11a89b;color:#fff;box-shadow:0 4px 0 0 #0a9e91}
 .pill-btn.checked:hover{transform:translateY(-1px);box-shadow:0 5px 0 0 #0a9e91}
-
-.pill-btn.skipped{
-  background:var(--ac-bg-disabled);border-color:var(--ac-border);color:var(--ac-text-disabled);
-  box-shadow:0 3px 0 0 #e0d8cc;opacity:.8;
-}
+.pill-btn.skipped{background:var(--ac-bg-disabled);border-color:var(--ac-border);color:var(--ac-text-disabled);box-shadow:0 3px 0 0 #e0d8cc;opacity:.8}
 .pill-btn.skipped .pill-name{text-decoration:line-through}
-
 .pill-icon{font-size:15px;line-height:1;pointer-events:none;flex-shrink:0}
 .pill-name{pointer-events:none;white-space:nowrap}
 .pill-dot{width:14px;height:14px;flex-shrink:0;pointer-events:none}
-
-.pill-skip{
-  display:inline-flex;align-items:center;justify-content:center;
-  width:18px;height:18px;border-radius:50%;
-  border:none;background:rgba(0,0,0,0.06);color:var(--ac-text-disabled);
-  font-size:10px;font-weight:700;cursor:pointer;padding:0;margin-left:2px;
-  flex-shrink:0;transition:all .15s;pointer-events:all;
-}
+.pill-skip{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;border-radius:50%;
+  border:none;background:rgba(0,0,0,0.06);color:var(--ac-text-disabled);font-size:10px;font-weight:700;
+  cursor:pointer;padding:0;margin-left:2px;flex-shrink:0;transition:all .15s;pointer-events:all;}
 .pill-skip:hover{background:var(--ac-error);color:#fff}
 .pill-btn.skipped .pill-skip{background:rgba(25,200,185,.15);color:var(--ac-primary)}
 .pill-btn.skipped .pill-skip:hover{background:var(--ac-primary);color:#fff}
 
-/* ===== Fen group ===== */
-.fen-group{
-  display:inline-flex;border-radius:50px;overflow:hidden;
-  border:2.5px solid var(--ac-border);
-  box-shadow:0 4px 0 0 #bdaea0;transition:all .15s;
-}
+.fen-group{display:inline-flex;border-radius:50px;overflow:hidden;border:2.5px solid var(--ac-border);box-shadow:0 4px 0 0 #bdaea0;transition:all .15s}
 .fen-group:hover{transform:translateY(-2px);box-shadow:0 6px 0 0 #bdaea0}
-.fen-half{
-  display:inline-flex;align-items:center;gap:4px;
-  padding:0 12px;height:38px;
-  background:var(--ac-bg-card);color:var(--ac-text);
-  font-family:var(--ac-font);font-size:11px;font-weight:700;
-  cursor:pointer;user-select:none;border:none;outline:none;
-  transition:background .15s,color .15s;
-  -webkit-tap-highlight-color:transparent;
-}
+.fen-half{display:inline-flex;align-items:center;gap:4px;padding:0 12px;height:38px;background:var(--ac-bg-card);color:var(--ac-text);
+  font-family:var(--ac-font);font-size:11px;font-weight:700;cursor:pointer;user-select:none;border:none;outline:none;
+  transition:background .15s,color .15s;-webkit-tap-highlight-color:transparent;}
 .fen-half:first-child{border-right:1.5px solid var(--ac-border)}
 .fen-half:last-child{border-left:1.5px solid var(--ac-border)}
 .fen-half.checked{background:var(--ac-primary);color:#fff}
 .fen-half:active{filter:brightness(.92)}
 
-/* ===== Progress ===== */
 .day-progress{margin-top:10px;height:6px;border-radius:50px;background:#e8e0d0;overflow:hidden}
 .day-progress-fill{height:100%;border-radius:50px;background:linear-gradient(90deg,var(--ac-primary),var(--ac-success));transition:width .4s}
 
-/* ===== Footer ===== */
 .footer-sea{position:fixed;bottom:0;left:0;right:0;height:56px;pointer-events:none;z-index:0;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1440 186'%3E%3Cpath fill='%23327A93' d='M0,96 C240,160 480,40 720,96 C960,152 1200,40 1440,96 L1440,186 L0,186 Z'/%3E%3Cpath fill='%2398D2E3' opacity='.6' d='M0,120 C360,60 720,180 1080,120 C1260,90 1360,130 1440,120 L1440,186 L0,186 Z'/%3E%3C/svg%3E") center/cover no-repeat}
 
-.back-to-top{
-  position:fixed;bottom:72px;right:16px;width:44px;height:44px;
-  border-radius:50px;background:var(--ac-bg-card);color:var(--ac-text);
-  border:2px solid var(--ac-border);box-shadow:0 4px 0 0 #bdaea0;
-  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all .2s;z-index:10;opacity:0;pointer-events:none;
-}
+.back-to-top{position:fixed;bottom:72px;right:16px;width:44px;height:44px;border-radius:50px;
+  background:var(--ac-bg-card);color:var(--ac-text);border:2px solid var(--ac-border);
+  box-shadow:0 4px 0 0 #bdaea0;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;z-index:10;opacity:0;pointer-events:none;}
 .back-to-top.visible{opacity:1;pointer-events:all}
 .back-to-top:hover{transform:translateY(-2px)}
 .back-to-top:active{transform:translateY(2px)}
+
+.empty-hint{text-align:center;padding:40px 20px;color:var(--ac-text-secondary);font-size:14px}
 
 @media(max-width:480px){
   body{padding:16px 8px 80px}
@@ -241,6 +193,23 @@ body::before{
 
   <div class="sync-bar"><span id="syncStatus" style="font-size:11px;font-weight:600;color:var(--ac-text-secondary)">☁️ 加载中…</span></div>
 
+  <!-- Med Manager -->
+  <div class="card">
+    <div class="card-title" id="mgrToggle"><span class="arrow" id="mgrArrow">▶</span> 💊 管理药品</div>
+    <div class="card-body" id="mgrBody">
+      <div class="med-mgr-row">
+        <input class="mgr-emoji" id="newMedEmoji" placeholder="💊" maxlength="2" value="💊">
+        <input class="mgr-name" id="newMedName" placeholder="药品名称">
+        <button class="ac-btn primary" onclick="addMedicine()">＋ 添加</button>
+      </div>
+      <div class="med-tag-list" id="medTags"></div>
+      <div style="font-size:11px;color:var(--ac-text-secondary);margin-top:8px">
+        💡 新增药品仅从今天起显示，已过去的日期不受影响
+      </div>
+    </div>
+  </div>
+
+  <!-- Notice -->
   <div class="notice-card">
     <div class="notice-title">⚠️ 用药注意事项</div>
     <ul>
@@ -263,62 +232,164 @@ const START_DATE = new Date(2026,4,25);
 const TOTAL_DAYS = 31;
 const WZH = ['日','一','二','三','四','五','六'];
 const WEN = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-const MEDS = [
-  {id:'asp', icon:'💊', name:'阿司匹林'},
-  {id:'hyd', icon:'🔵', name:'羟氯喹'},
-  {id:'fol', icon:'🌿', name:'叶酸'},
-  {id:'vd',  icon:'☀️', name:'维D'},
-  {id:'tcm', icon:'🍵', name:'中药'},
-];
-const SPECIAL = {'2026-6-1':{label:'⚡ B超日'}};
-const STORAGE_KEY  = 'islandMedState_v2';
-const SKIP_KEY     = 'islandMedSkipped_v2';
-const RESTORE_KEY  = 'islandMedRestore_v1';
-const GIST_ID      = 'd4d8b772693a0cc6864a590a50276842';
-const GIST_FILE    = 'med-checklist-data.json';
 
-// token from URL hash
+const SPECIAL = {'2026-6-1':{label:'⚡ B超日'}};
+const MEDS_KEY = 'islandMedList_v2';
+const STORAGE_KEY = 'islandMedState_v2';
+const SKIP_KEY = 'islandMedSkipped_v2';
+const RESTORE_KEY = 'islandMedRestore_v1';
+const GIST_ID = 'd4d8b772693a0cc6864a590a50276842';
+const GIST_FILE = 'med-checklist-data.json';
+
+// Default meds: each has id, icon, name, addedDate
+const DEFAULT_MEDS = [
+  {id:'asp', icon:'💊', name:'阿司匹林', addedDate:dk(START_DATE)},
+  {id:'hyd', icon:'🔵', name:'羟氯喹',   addedDate:dk(START_DATE)},
+  {id:'fol', icon:'🌿', name:'叶酸',     addedDate:dk(START_DATE)},
+  {id:'vd',  icon:'☀️', name:'维D',     addedDate:dk(START_DATE)},
+  {id:'tcm', icon:'🍵', name:'中药',     addedDate:dk(START_DATE)},
+];
+
+// ===== LOAD / SAVE =====
+function dk(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
+function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
+function todayStr(){return dk(new Date())}
+
+// Load meds from localStorage
+function loadMeds(){
+  try{
+    const raw = localStorage.getItem(MEDS_KEY);
+    if(raw) return JSON.parse(raw);
+  }catch(e){}
+  // First time: save defaults
+  saveMeds(DEFAULT_MEDS);
+  return [...DEFAULT_MEDS];
+}
+function saveMeds(meds){
+  try{localStorage.setItem(MEDS_KEY, JSON.stringify(meds))}catch(e){}
+  // Also sync to Gist
+  clearTimeout(_medSyncTimer);
+  _medSyncTimer = setTimeout(()=>pushMedsToGist(meds), 1000);
+}
+
+let MEDS = loadMeds();
+let _medSyncTimer = null;
+
+async function pushMedsToGist(meds){
+  if(!GIST_TOKEN) return;
+  try{
+    await fetch('https://api.github.com/gists/'+GIST_ID,{
+      method:'PATCH',
+      headers:{'Authorization':'token '+GIST_TOKEN,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
+      body:JSON.stringify({files:{'med-list.json':{content:JSON.stringify(meds)}}})
+    });
+  }catch(e){}
+}
+
+// Token
 const _ht = location.hash.replace('#','').trim();
 if(_ht) localStorage.setItem('med_gist_token', _ht);
 if(location.hash) history.replaceState(null,'',location.pathname+location.search);
 const GIST_TOKEN = localStorage.getItem('med_gist_token') || '';
 
-let state      = {};
-let skipped    = {};
-let restoredAt = {};
-let syncTimer  = null;
-try { state      = JSON.parse(localStorage.getItem(STORAGE_KEY)  || '{}'); } catch(e){}
-try { skipped    = JSON.parse(localStorage.getItem(SKIP_KEY)     || '{}'); } catch(e){}
-try { restoredAt = JSON.parse(localStorage.getItem(RESTORE_KEY)  || '{}'); } catch(e){}
+// State / skipped / restoredAt
+let state = {}, skipped = {}, restoredAt = {}, syncTimer = null;
+try{state = JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')}catch(e){}
+try{skipped = JSON.parse(localStorage.getItem(SKIP_KEY)||'{}')}catch(e){}
+try{restoredAt = JSON.parse(localStorage.getItem(RESTORE_KEY)||'{}')}catch(e){}
 
-function saveState(){ try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){} clearTimeout(syncTimer); syncTimer=setTimeout(pushToGist,800)}
-function saveSkipped(){ try{localStorage.setItem(SKIP_KEY,JSON.stringify(skipped))}catch(e){} }
-function saveRestore(){ try{localStorage.setItem(RESTORE_KEY,JSON.stringify(restoredAt))}catch(e){} }
-function isMedSkipped(id, dateKey){ if(restoredAt[id] && dateKey>=restoredAt[id]) return false; return !!skipped[id] }
+function saveState(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}catch(e){} clearTimeout(syncTimer); syncTimer=setTimeout(pushToGist,800)}
+function saveSkipped(){try{localStorage.setItem(SKIP_KEY,JSON.stringify(skipped))}catch(e){}}
+function saveRestore(){try{localStorage.setItem(RESTORE_KEY,JSON.stringify(restoredAt))}catch(e){}}
+
+// ===== MEDICINE MANAGEMENT =====
+function addMedicine(){
+  const emojiEl = document.getElementById('newMedEmoji');
+  const nameEl = document.getElementById('newMedName');
+  const name = nameEl.value.trim();
+  if(!name){alert('请输入药品名称');return}
+  const id = 'med_' + Date.now();
+  const med = {id, icon: emojiEl.value || '💊', name, addedDate: todayStr()};
+  MEDS.push(med);
+  saveMeds(MEDS);
+  nameEl.value = '';
+  emojiEl.value = '💊';
+  renderMedTags();
+  rebuildAllDays();
+  updateStats();
+}
+
+function removeMedicine(id){
+  if(!confirm('确定要删除这个药品吗？\n删除后从今天起不再显示，过去的打卡记录不受影响。')) return;
+  const med = MEDS.find(m=>m.id===id);
+  if(med){
+    // Mark with removedDate instead of deleting from array
+    // This preserves past check data
+    med.removedDate = todayStr();
+    saveMeds(MEDS);
+  }
+  renderMedTags();
+  rebuildAllDays();
+  updateStats();
+}
+
+function renderMedTags(){
+  const container = document.getElementById('medTags');
+  if(!container) return;
+  const active = MEDS.filter(m=>!m.removedDate);
+  const removed = MEDS.filter(m=>m.removedDate);
+  let html = '';
+  active.forEach(m=>{
+    html += `<span class="med-tag">${m.icon} ${escHtml(m.name)}<span class="tag-date">${m.addedDate}起</span><button class="tag-remove" onclick="removeMedicine('${m.id}')">✕</button></span>`;
+  });
+  removed.forEach(m=>{
+    html += `<span class="med-tag" style="opacity:.5;text-decoration:line-through">${m.icon} ${escHtml(m.name)}<span class="tag-date">已停用 ${m.removedDate}</span></span>`;
+  });
+  container.innerHTML = html || '<span style="font-size:12px;color:var(--ac-text-secondary)">暂无药品</span>';
+}
+
+function getActiveMeds(){
+  // Returns meds that are active (not removed) for viewing
+  return MEDS.filter(m=>!m.removedDate);
+}
+
+// Check if a medicine should be visible for a given date
+function isMedVisible(med, dateKey){
+  // Never show before addedDate
+  if(dateKey < med.addedDate) return false;
+  // Don't show on/after removedDate
+  if(med.removedDate && dateKey >= med.removedDate) return false;
+  return true;
+}
+
+// Combined: visible AND not skipped
+function isMedActive(med, dateKey){
+  if(!isMedVisible(med, dateKey)) return false;
+  if(restoredAt[med.id] && dateKey >= restoredAt[med.id]) return true; // restored overrides skip
+  if(skipped[med.id]) return false;
+  return true;
+}
 
 function toggleSkip(id){
   if(skipped[id]){
-    delete skipped[id]; restoredAt[id]=dk(new Date());
+    delete skipped[id];
+    restoredAt[id] = todayStr();
   } else {
-    skipped[id]=true; delete restoredAt[id];
+    skipped[id] = true;
+    delete restoredAt[id];
   }
   saveSkipped(); saveRestore();
   document.querySelectorAll('.day-card').forEach(c=>applyStateToCard(c.id.replace('card-','')));
   updateStats();
 }
 
-function dk(d){return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()}
-function addDays(d,n){const r=new Date(d);r.setDate(r.getDate()+n);return r}
-
-function dotSVG(checked){
-  if(checked) return '<svg class="pill-dot" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" fill="rgba(255,255,255,.3)" stroke="rgba(255,255,255,.6)" stroke-width="1"/><path d="M4 7l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-  return '<svg class="pill-dot" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--ac-text-disabled)" stroke-width="1.5"/></svg>';
-}
-
 function toggle(key, medId){
-  if(isMedSkipped(medId,key)) return;
+  // Check if med is active for this date
+  const med = MEDS.find(m=>m.id===medId);
+  if(!med) return;
+  if(!isMedActive(med, key)) return;
   if(!state[key]) state[key]={};
-  state[key][medId]=!state[key][medId];
+  state[key][medId] = !state[key][medId];
   saveState(); applyStateToCard(key); updateStats();
 }
 
@@ -327,7 +398,7 @@ async function pushToGist(){
   if(!GIST_TOKEN){setSyncStatus('notoken');return}
   setSyncStatus('syncing');
   try{
-    const res=await fetch('https://api.github.com/gists/'+GIST_ID,{
+    const res = await fetch('https://api.github.com/gists/'+GIST_ID,{
       method:'PATCH',
       headers:{'Authorization':'token '+GIST_TOKEN,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},
       body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(state)}}})
@@ -339,14 +410,25 @@ async function pullFromGist(){
   if(!GIST_TOKEN){setSyncStatus('notoken');return}
   setSyncStatus('syncing');
   try{
-    const res=await fetch('https://api.github.com/gists/'+GIST_ID,{
+    const res = await fetch('https://api.github.com/gists/'+GIST_ID,{
       headers:{'Authorization':'token '+GIST_TOKEN,'Accept':'application/vnd.github.v3+json'}
     });
     if(!res.ok){setSyncStatus('err');return}
-    const data=await res.json();
-    const cloud=JSON.parse(data.files?.[GIST_FILE]?.content||'{}');
-    state=Object.assign({},state,cloud);
+    const data = await res.json();
+    const cloud = JSON.parse(data.files?.[GIST_FILE]?.content||'{}');
+    state = Object.assign({},state,cloud);
     localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+    // Also try to load med list from Gist
+    if(data.files?.['med-list.json']){
+      try{
+        const cloudMeds = JSON.parse(data.files['med-list.json'].content);
+        if(cloudMeds.length > 0){
+          MEDS = cloudMeds;
+          saveMeds(MEDS);
+          renderMedTags();
+        }
+      }catch(e){}
+    }
     setSyncStatus('ok');
     document.querySelectorAll('.day-card').forEach(c=>applyStateToCard(c.id.replace('card-','')));
     updateStats();
@@ -359,6 +441,95 @@ function setSyncStatus(s){
 }
 
 // ===== BUILD =====
+function dotSVG(checked){
+  if(checked) return '<svg class="pill-dot" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6.5" fill="rgba(255,255,255,.3)" stroke="rgba(255,255,255,.6)" stroke-width="1"/><path d="M4 7l2 2 4-4" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  return '<svg class="pill-dot" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="var(--ac-text-disabled)" stroke-width="1.5"/></svg>';
+}
+
+function buildDayCard(d,key,special){
+  const card=document.createElement('div');
+  card.className='day-card'+(special?' special':''); card.id='card-'+key;
+  const hdr=document.createElement('div'); hdr.className='day-header';
+  const de=document.createElement('div'); de.className='day-date'; de.textContent=(d.getMonth()+1)+'/'+d.getDate();
+  const we=document.createElement('div'); we.className='day-weekday'; we.textContent='周'+WZH[d.getDay()]+' '+WEN[d.getDay()];
+  hdr.appendChild(de);hdr.appendChild(we);
+  if(special){const b=document.createElement('div');b.className='day-badge';b.textContent=special.label;hdr.appendChild(b)}
+  card.appendChild(hdr);
+  const rp=document.createElement('div');rp.className='pills-row';rp.id='pending-'+key;card.appendChild(rp);
+  const rd=document.createElement('div');rd.className='pills-done';rd.id='done-'+key;card.appendChild(rd);
+  const pg=document.createElement('div');pg.className='day-progress';
+  const pf=document.createElement('div');pf.className='day-progress-fill';pf.id='prog-'+key;pf.style.width='0%';
+  pg.appendChild(pf);card.appendChild(pg);
+  return card;
+}
+
+function makePillBtn(key,id,icon,name,checked,skippedFlag){
+  const btn=document.createElement('button');
+  btn.className='pill-btn'+(checked?' checked':'')+(skippedFlag?' skipped':'');
+  btn.setAttribute('data-key',key);btn.setAttribute('data-med',id);
+  btn.innerHTML='<span class="pill-icon">'+icon+'</span><span class="pill-name">'+escHtml(name)+'</span>'+dotSVG(checked);
+  const sk=document.createElement('button');
+  sk.className='pill-skip';sk.innerHTML=skippedFlag?'&#x21A9;':'&#x2715;';
+  sk.title=skippedFlag?'点击恢复（恢复后从今天开始）':'今日跳过（从今天起隐藏）';
+  sk.setAttribute('data-skip-id',id);
+  sk.addEventListener('click',function(e){e.stopPropagation();toggleSkip(this.getAttribute('data-skip-id'))});
+  btn.appendChild(sk);
+  btn.addEventListener('click',function(){toggle(this.getAttribute('data-key'),this.getAttribute('data-med'))});
+  return btn;
+}
+
+function applyStateToCard(key){
+  const pending=document.getElementById('pending-'+key);
+  const done=document.getElementById('done-'+key);
+  if(!pending)return; pending.innerHTML=''; done.innerHTML='';
+  const s=state[key]||{};
+  const activeMeds = getActiveMeds();
+  let doneCount=0, totalCount=0;
+  
+  activeMeds.forEach(med=>{
+    if(!isMedVisible(med, key)) return; // don't render if not in range
+    totalCount++;
+    const skp = !isMedActive(med, key);
+    const chk = !skp && !!s[med.id];
+    if(chk) doneCount++;
+    const btn = makePillBtn(key, med.id, med.icon, med.name, chk, skp);
+    (chk ? done : pending).appendChild(btn);
+  });
+
+  // Fen special handling
+  const fenMed = MEDS.find(m=>m.id==='fen'||m.name==='芬吗通');
+  if(fenMed && isMedVisible(fenMed, key)){
+    totalCount += 2;
+    const fenSkip = !isMedActive(fenMed, key);
+    const c1=!!s['fen1'],c2=!!s['fen2'];
+    if(fenSkip){
+      const btn = makePillBtn(key,'fen','🌸','芬吗通',false,true);
+      pending.appendChild(btn);
+    } else {
+      if(c1)doneCount++; if(c2)doneCount++;
+      const grp=document.createElement('div');grp.className='fen-group';
+      ['fen1','fen2'].forEach((fid,i)=>{
+        const chk=!!s[fid];
+        const half=document.createElement('button');
+        half.className='fen-half'+(chk?' checked':'');
+        half.setAttribute('data-key',key);half.setAttribute('data-med',fid);
+        half.innerHTML='<span class="pill-icon">🌸</span><span class="pill-name">芬吗通'+(i===0?'①':'②')+'</span>'+dotSVG(chk);
+        half.style[i===0?'borderRight':'borderLeft']='1.5px solid var(--ac-border)';
+        half.addEventListener('click',function(){toggle(this.getAttribute('data-key'),this.getAttribute('data-med'))});
+        grp.appendChild(half);
+      });
+      (c1&&c2?done:pending).appendChild(grp);
+    }
+  }
+
+  const fill=document.getElementById('prog-'+key);
+  if(fill)fill.style.width=totalCount>0?Math.round(doneCount/totalCount*100)+'%':'0%';
+}
+
+function rebuildAllDays(){
+  buildAll();
+}
+
 function buildAll(){
   const container=document.getElementById('daysContainer'); container.innerHTML='';
   let weekBlock=null;
@@ -376,95 +547,67 @@ function buildAll(){
   }
   updateStats();
 }
-function buildDayCard(d,key,special){
-  const card=document.createElement('div');
-  card.className='day-card'+(special?' special':''); card.id='card-'+key;
-  const hdr=document.createElement('div'); hdr.className='day-header';
-  const de=document.createElement('div'); de.className='day-date'; de.textContent=(d.getMonth()+1)+'/'+d.getDate();
-  const we=document.createElement('div'); we.className='day-weekday'; we.textContent='周'+WZH[d.getDay()]+' '+WEN[d.getDay()];
-  hdr.appendChild(de);hdr.appendChild(we);
-  if(special){const b=document.createElement('div');b.className='day-badge';b.textContent=special.label;hdr.appendChild(b)}
-  card.appendChild(hdr);
-  const rp=document.createElement('div');rp.className='pills-row';rp.id='pending-'+key;card.appendChild(rp);
-  const rd=document.createElement('div');rd.className='pills-done';rd.id='done-'+key;card.appendChild(rd);
-  const pg=document.createElement('div');pg.className='day-progress';
-  const pf=document.createElement('div');pf.className='day-progress-fill';pf.id='prog-'+key;pf.style.width='0%';
-  pg.appendChild(pf);card.appendChild(pg);
-  return card;
-}
-function makePillBtn(key,id,icon,name,checked,skp){
-  const btn=document.createElement('button');
-  btn.className='pill-btn'+(checked?' checked':'')+(skp?' skipped':'');
-  btn.setAttribute('data-key',key);btn.setAttribute('data-med',id);
-  btn.innerHTML='<span class="pill-icon">'+icon+'</span><span class="pill-name">'+name+'</span>'+dotSVG(checked);
-  const sk=document.createElement('button');
-  sk.className='pill-skip';
-  sk.innerHTML=skp?'&#x21A9;':'&#x2715;';
-  sk.title=skp?'点击恢复（恢复后从今天开始）':'今日跳过（从今天起隐藏）';
-  sk.setAttribute('data-skip-id',id);
-  sk.addEventListener('click',function(e){e.stopPropagation();toggleSkip(this.getAttribute('data-skip-id'))});
-  btn.appendChild(sk);
-  btn.addEventListener('click',function(){toggle(this.getAttribute('data-key'),this.getAttribute('data-med'))});
-  return btn;
-}
-function applyStateToCard(key){
-  const pending=document.getElementById('pending-'+key);
-  const done=document.getElementById('done-'+key);
-  if(!pending)return; pending.innerHTML=''; done.innerHTML='';
-  const s=state[key]||{};
-  const activeIds=MEDS.filter(m=>!isMedSkipped(m.id,key)).map(m=>m.id).concat(isMedSkipped('fen',key)?[]:['fen1','fen2']);
-  let doneCount=0;
-  MEDS.forEach(med=>{
-    const skp=isMedSkipped(med.id,key); const chk=!skp&&!!s[med.id];
-    if(chk)doneCount++;
-    const btn=makePillBtn(key,med.id,med.icon,med.name,chk,skp);
-    (chk?done:pending).appendChild(btn);
-  });
-  const fenSkip=isMedSkipped('fen',key); const c1=!!s['fen1'],c2=!!s['fen2'];
-  if(!fenSkip){
-    if(c1)doneCount++;if(c2)doneCount++;
-    const grp=document.createElement('div');grp.className='fen-group';
-    ['fen1','fen2'].forEach((fid,i)=>{
-      const chk=!!s[fid];
-      const half=document.createElement('button');
-      half.className='fen-half'+(chk?' checked':'');
-      half.setAttribute('data-key',key);half.setAttribute('data-med',fid);
-      half.innerHTML='<span class="pill-icon">🌸</span><span class="pill-name">芬吗通'+(i===0?'①':'②')+'</span>'+dotSVG(chk);
-      half.style[i===0?'borderRight':'borderLeft']='1.5px solid var(--ac-border)';
-      half.addEventListener('click',function(){toggle(this.getAttribute('data-key'),this.getAttribute('data-med'))});
-      grp.appendChild(half);
-    });
-    (c1&&c2?done:pending).appendChild(grp);
-  } else {
-    const btn=makePillBtn(key,'fen','🌸','芬吗通',false,true); pending.appendChild(btn);
-  }
-  const total=activeIds.length; const fill=document.getElementById('prog-'+key);
-  if(fill)fill.style.width=total>0?Math.round(doneCount/total*100)+'%':'0%';
-}
+
 function updateStats(){
   const today=new Date(); const tk=dk(today); const ts=state[tk]||{};
-  const active=[...MEDS.filter(m=>!isMedSkipped(m.id,tk)).map(m=>m.id),...(isMedSkipped('fen',tk)?[]:['fen1','fen2'])];
-  const todayDone=active.filter(id=>ts[id]).length;
-  const todayTotal=active.length;
-  document.getElementById('totalDone').textContent=todayDone;
-  document.getElementById('totalToday').textContent=todayTotal-todayDone;
+  const activeMeds = getActiveMeds();
+  let todayDone=0, todayTotal=0;
+  activeMeds.forEach(med=>{
+    if(!isMedVisible(med, tk)) return;
+    todayTotal++;
+    if(isMedActive(med, tk) && ts[med.id]) todayDone++;
+  });
+  const fenMed = MEDS.find(m=>m.id==='fen'||m.name==='芬吗通');
+  if(fenMed && isMedVisible(fenMed, tk)){
+    todayTotal+=2;
+    if(isMedActive(fenMed, tk)){
+      if(ts['fen1'])todayDone++; if(ts['fen2'])todayDone++;
+    }
+  }
+  document.getElementById('totalDone').textContent = todayDone;
+  document.getElementById('totalToday').textContent = todayTotal-todayDone;
   let streak=0;
   for(let i=0;i<TOTAL_DAYS;i++){
     const d=addDays(START_DATE,i);if(d>today)break;
     const sv=state[dk(d)]||{};
-    if(active.filter(id=>sv[id]).length===todayTotal)streak++;else streak=0;
+    let dayTotal=0, dayDone=0;
+    activeMeds.forEach(med=>{
+      if(!isMedVisible(med, dk(d))) return;
+      dayTotal++;
+      if(isMedActive(med, dk(d)) && sv[med.id]) dayDone++;
+    });
+    if(fenMed && isMedVisible(fenMed, dk(d))){
+      dayTotal+=2;
+      if(isMedActive(fenMed, dk(d))){
+        if(sv['fen1'])dayDone++;if(sv['fen2'])dayDone++;
+      }
+    }
+    if(dayTotal>0 && dayDone===dayTotal) streak++; else streak=0;
   }
-  document.getElementById('streakDays').textContent=streak;
+  document.getElementById('streakDays').textContent = streak;
 }
 
-// ===== BACK TO TOP =====
-document.getElementById('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
-window.addEventListener('scroll',()=>{const btn=document.getElementById('backToTop');window.scrollY>300?btn.classList.add('visible'):btn.classList.remove('visible')});
+function escHtml(s){
+  const div=document.createElement('div');div.textContent=s;return div.innerHTML;
+}
 
 // ===== INIT =====
+renderMedTags();
 buildAll();
 setTimeout(()=>{const el=document.getElementById('card-'+dk(new Date()));if(el)el.scrollIntoView({behavior:'smooth',block:'center'})},300);
 pullFromGist();
+
+// Collapsible
+document.getElementById('mgrToggle').addEventListener('click',function(){
+  const body=document.getElementById('mgrBody');
+  const arrow=document.getElementById('mgrArrow');
+  body.classList.toggle('open');
+  arrow.classList.toggle('open');
+});
+
+// Back to top
+document.getElementById('backToTop').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+window.addEventListener('scroll',()=>{const btn=document.getElementById('backToTop');window.scrollY>300?btn.classList.add('visible'):btn.classList.remove('visible')});
 </script>
 </body>
 </html>
