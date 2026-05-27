@@ -224,7 +224,8 @@ function renderManagePanel(){
         <div class="manage-item-date">从 ${m.addedDate||'—'} 开始</div>
       </div>
       <span class="manage-item-status ${cls}">${lbl}</span>
-      <button class="manage-del-btn${m.stopped?' restore':''}" onclick="stopMed(${i})" title="${m.stopped?'恢复服用':'停用'}">${m.stopped?'↩':'×'}</button>`;
+      <button class="manage-del-btn${m.stopped?' restore':''}" onclick="stopMed(${i})" title="${m.stopped?'恢复服用':'停用'}">${m.stopped?'↩':'×'}</button>
+      <button class="manage-del-btn" onclick="deleteMed(${i})" title="永久删除" style="background:#e8453c;color:#fff;margin-left:4px">🗑</button>`;
     c.appendChild(el);
   });
   const nd=document.getElementById('newDate');
@@ -232,6 +233,12 @@ function renderManagePanel(){
 }
 function stopMed(i){
   meds[i].stopped=!meds[i].stopped;saveMeds();renderManagePanel();
+  document.querySelectorAll('.day-card').forEach(c=>applyStateToCard(c.id.replace('card-','')));
+  updateStats();
+}
+function deleteMed(i){
+  if(!confirm('确定永久删除「'+meds[i].name+'」？此操作不可恢复。'))return;
+  meds.splice(i,1);saveMeds();renderManagePanel();
   document.querySelectorAll('.day-card').forEach(c=>applyStateToCard(c.id.replace('card-','')));
   updateStats();
 }
@@ -417,3 +424,4 @@ pullFromGist();
 </script>
 </body>
 </html>
+
