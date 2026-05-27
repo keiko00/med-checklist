@@ -276,7 +276,10 @@ function saveState(){
 
 function saveSkipped(){ try { localStorage.setItem(SKIP_KEY, JSON.stringify(skipped)); } catch(e){} }
 
-function isMedSkipped(id){ return !!skipped[id]; }
+function isMedSkipped(id, dateKey){
+  if(restoredAt[id] && dateKey >= restoredAt[id]) return false;
+  return !!skipped[id];
+}
 
 function toggleSkip(id){
 
@@ -514,7 +517,7 @@ function makePillBtn(key, id, icon, name, checked, skp){
 
   sk.innerHTML = skp ? '&#x21A9;' : '&#x2715;';
 
-  sk.title = skp ? '点击恢复' : '今日跳过';
+  sk.title = skp ? '点击恢复（恢复后从今天开始）' : '今日跳过（从今天起隐藏）';
 
   sk.setAttribute('data-skip-id', id);
 
@@ -548,7 +551,7 @@ function applyStateToCard(key){
 
   const allIds = [...MEDS.map(m=>m.id),'fen1','fen2'];
 
-  const activeIds = MEDS.filter(m=>!isMedSkipped(m.id)).map(m=>m.id).concat(isMedSkipped('fen')?[]:['fen1','fen2']);
+  const activeIds = MEDS.filter(m=>!isMedSkipped(m.id,key)).map(m=>m.id).concat(isMedSkipped('fen',key)?[]:['fen1','fen2']);
 
   let doneCount = 0;
 
@@ -570,7 +573,7 @@ function applyStateToCard(key){
 
 
 
-  const fenSkip = isMedSkipped('fen');
+  const fenSkip = isMedSkipped('fen',key);
 
   const c1=!!s['fen1'], c2=!!s['fen2'];
 
@@ -630,7 +633,7 @@ function updateStats(){
 
   const ts = state[tk]||{};
 
-  const active = [...MEDS.filter(m=>!isMedSkipped(m.id)).map(m=>m.id), ...(isMedSkipped('fen')?[]:['fen1','fen2'])];
+  const active = [...MEDS.filter(m=>!isMedSkipped(m.id,tk)).map(m=>m.id), ...(isMedSkipped('fen',tk)?[]:['fen1','fen2'])];
 
   const todayDone  = active.filter(id=>ts[id]).length;
 
