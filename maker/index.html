@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>岛岛小药箱 · 药品提醒生成器</title>
+<title>惠子老师小药箱 · 生成器</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -224,7 +224,7 @@ function renderForm(){
   document.getElementById('app').innerHTML = `
     <div class="header">
       <span class="island-icon">🏝️</span>
-      <h1>岛岛小药箱</h1>
+      <h1>惠子老师小药箱 💊</h1>
       <div class="sub">定制你的专属药品提醒</div>
     </div>
 
@@ -252,7 +252,7 @@ function renderForm(){
 
     <div class="card">
       <div class="card-title">📝 备注 / 用药提示</div>
-      <textarea id="notes" placeholder="例如：空腹抽血，抽完血再服①和②；每日两包；每日一颗..."></textarea>
+      <textarea id="notes" placeholder="例如：饭后服用；每日一次，一次一片；睡前服用..."></textarea>
     </div>
 
     <button class="btn btn-primary btn-block" onclick="generateChecklist()" style="margin-top:8px">
@@ -290,9 +290,9 @@ function renderForm(){
 function medRowHTML(i){
   return `
     <div class="med-row" id="medRow${i}">
-      <input class="med-emoji" placeholder="🌸" maxlength="2" id="emoji${i}" value="${['🌸','💉','🍵'][i-1] || '💊'}">
-      <input placeholder="药品名" id="name${i}" value="${['芬吗通灰片','肝素','中药'][i-1] || ''}">
-      <input class="med-dosage" placeholder="用量" id="dose${i}" value="${['①和②','暂不使用','每日两包'][i-1] || ''}">
+      <input class="med-emoji" placeholder="💊" maxlength="2" id="emoji${i}" value="">
+      <input placeholder="药品名" id="name${i}" value="">
+      <input class="med-dosage" placeholder="用量" id="dose${i}" value="">
       ${i > 1 ? `<button class="med-del" onclick="removeMed(${i})">×</button>` : ''}
     </div>`;
 }
@@ -362,7 +362,7 @@ async function generateChecklist(){
   
   const config = {
     version: 1,
-    title: '岛岛小药箱',
+    title: '惠子老师小药箱',
     medicines,
     startDate,
     endDate,
@@ -371,7 +371,7 @@ async function generateChecklist(){
   };
   
   const gistData = {
-    description: '岛岛小药箱 · ' + medicines.map(m=>m.name).join('、'),
+    description: '惠子老师小药箱 · ' + medicines.map(m=>m.name).join('、'),
     public: false,
     files: {
       'med-maker-data.json': {
@@ -451,7 +451,7 @@ function renderNoToken(){
   document.getElementById('app').innerHTML = `
     <div class="header">
       <span class="island-icon">🏝️</span>
-      <h1>岛岛小药箱</h1>
+      <h1>惠子老师小药箱 💊</h1>
     </div>
     <div class="card" style="background:#fff8e0;border-color:#f7cd67;text-align:center">
       <div class="card-title">🔑 需要 Token</div>
@@ -505,7 +505,7 @@ function renderChecklist(){
     else break;
   }
   
-  const title = config.title || '岛岛小药箱';
+  const title = config.title || '惠子老师小药箱';
   
   document.getElementById('app').innerHTML = `
     <button class="back-btn" onclick="location.hash=''">← 返回首页</button>
